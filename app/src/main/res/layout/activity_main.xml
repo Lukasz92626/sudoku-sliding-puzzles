@@ -1,19 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:gravity="center"
+    android:paddingLeft="32dp"
+    android:paddingRight="32dp"
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <TextView android:id="@+id/tvTitle"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:text="Sudoku sliding puzzles"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView android:id="@+id/tvAuthor"
+        android:layout_width="350dp"
+        android:layout_height="30dp"
+        android:text="Author: Łukasz Lipski"
+        android:textSize="15sp"
+        />
+
+    <Button android:id="@+id/btPlay"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:text="Play"
+        android:layout_marginTop="15dp"
+        style="@style/SudokuslidingpuzzlesButton"
+        />
+
+</LinearLayout>

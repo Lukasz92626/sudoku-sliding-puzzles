@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+    <androidx.gridlayout.widget.GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        app:columnCount="9"
+        app:rowCount="9"
+        app:alignmentMode="alignBounds"
+        app:columnOrderPreserved="true">
+
+        <!-- Wiersz 0 -->
+
+        <TextView
+            android:id="@+id/tvDiagSum1"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            app:layout_columnWeight="1"
+            android:gravity="center"
+            android:text="0"
+            android:textSize="20sp"
+            app:layout_column="6"
+            app:layout_row="0"
+            android:textStyle="bold"/>
+
+        <!-- Wiersz 1 -->
+
+        <!-- Wiersz 2 -->
+
+        <!-- Wiersz 3 -->
+
+        <!-- Wiersz 4 -->
+
+        <!-- Wiersz 5 -->
+
+        <!-- Wiersz 6 -->
+
+        <!-- WIERSZ 7 -->
+
+        <!-- WIERSZ 8 -->
+
+    </androidx.gridlayout.widget.GridLayout>
+</LinearLayout>

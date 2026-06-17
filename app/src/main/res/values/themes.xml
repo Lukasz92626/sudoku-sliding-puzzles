@@ -1,9 +1,19 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.Sudokuslidingpuzzles" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowBackground">@color/light_blue</item>
     </style>
 
     <style name="Theme.Sudokuslidingpuzzles" parent="Base.Theme.Sudokuslidingpuzzles" />
+
+    <style name="SudokuslidingpuzzlesButton" parent="Widget.AppCompat.Button">
+
+        <item name="android:background">#4FC3F7</item>
+
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">20sp</item>
+
+        <item name="android:padding">10dp</item>
+
+    </style>
 </resources>

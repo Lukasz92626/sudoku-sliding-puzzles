@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="1"
+    android:rowCount="2"
+    android:gravity="center"
+    android:padding="15dp"
+    android:paddingLeft="5dp">
+
+    <HorizontalScrollView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_columnWeight="1"
+        android:layout_column="0"
+        android:layout_row="0"
+        android:gravity="center"
+        android:paddingTop="10dp">
+
+        <include layout="@layout/sudoku_grid"/>
+
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_columnWeight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_column="0"
+        android:layout_row="1"
+        android:paddingTop="10dp"
+        android:layout_marginBottom="60dp">
+
+        <Button
+            android:id="@+id/btSubmitSolution"
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:text="Submit solution"
+            style="@style/SudokuslidingpuzzlesButton"/>
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:padding="8dp"/>
+
+        <Button
+            android:id="@+id/btExit"
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:text="Exit"
+            style="@style/SudokuslidingpuzzlesButton"/>
+
+        <Button
+            android:id="@+id/btRules"
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="12dp"
+            android:text="Rules"
+            style="@style/SudokuslidingpuzzlesButton"/>
+
+    </LinearLayout>
+
+</GridLayout>
