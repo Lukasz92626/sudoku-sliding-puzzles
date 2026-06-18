@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class GameActivity extends AppCompatActivity {
-    EditText[][] edits;
     TextView tvMessage;
     Button btSubmitSolution, btExit, btRules;
 
@@ -20,6 +19,8 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_game_portrait);
+
+        init();
     }
 
     public void init(){
@@ -28,4 +29,6 @@ public class GameActivity extends AppCompatActivity {
         btExit = findViewById(R.id.btExit);
         btRules = findViewById(R.id.btRules);
     }
+
+
 }
