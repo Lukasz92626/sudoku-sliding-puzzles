@@ -1,6 +1,8 @@
 package proj.mobapp.sudoku_sliding_puzzles;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import android.widget.Button;
@@ -37,7 +39,12 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_game_portrait);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            setContentView(R.layout.activity_game_portrait);
+        }
+        else {
+            setContentView(R.layout.activity_game_landscape);
+        }
 
         init();
 
@@ -61,8 +68,10 @@ public class GameActivity extends AppCompatActivity {
             syncSudokuFromTiles();
             if (checkBoard()) {
                 tvMessage.setText("You solved correctly!");
+                saveWin();
             } else {
                 tvMessage.setText("The board contains errors.");
+                saveLoss();
             }
         });
 
@@ -70,6 +79,22 @@ public class GameActivity extends AppCompatActivity {
             Intent intent = new Intent(GameActivity.this, MainActivity.class);
             startActivity(intent);
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (recyclerView != null && puzzleAdapter != null) {
+            recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
+            puzzleAdapter.notifyDataSetChanged();
+        }
     }
 
     private void buildBoard() {
@@ -312,5 +337,17 @@ public class GameActivity extends AppCompatActivity {
         }
 
         return true;
+    }
+
+    private void saveWin() {
+        SharedPreferences prefs = getSharedPreferences("stats", MODE_PRIVATE);
+        int wins = prefs.getInt("wins", 0);
+        prefs.edit().putInt("wins", wins + 1).apply();
+    }
+
+    private void saveLoss() {
+        SharedPreferences prefs = getSharedPreferences("stats", MODE_PRIVATE);
+        int losses = prefs.getInt("losses", 0);
+        prefs.edit().putInt("losses", losses + 1).apply();
     }
 }

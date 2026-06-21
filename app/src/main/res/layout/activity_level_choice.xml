@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:paddingLeft="32dp"
+    android:paddingRight="32dp"
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp">
+
+    <TextView android:id="@+id/tvWelcome"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:text="Select a level from 1-9"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        />
+
+    <EditText android:id="@+id/etLevelChoice"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:text=""
+        android:inputType="number"
+        android:layout_marginTop="15dp"
+        android:textSize="20sp"
+        />
+
+    <Button android:id="@+id/btStart"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:text="Start"
+        android:layout_marginTop="15dp"
+        style="@style/SudokuslidingpuzzlesButton"
+        />
+
+    <TextView android:id="@+id/tvSuccessFail"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:text=""
+        android:layout_marginTop="15dp"
+        android:textSize="20sp"
+        />
+
+</LinearLayout>
