@@ -13,6 +13,7 @@
         android:gravity="center"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="@color/black"
         android:background="@drawable/tile_background" />
 
 </proj.mobapp.sudoku_sliding_puzzles.SquareFrameLayout>

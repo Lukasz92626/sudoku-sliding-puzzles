@@ -1,5 +1,6 @@
 package proj.mobapp.sudoku_sliding_puzzles;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.widget.Button;
@@ -42,7 +43,7 @@ public class GameActivity extends AppCompatActivity {
 
         generateSudoku();
         buildBoard();
-        scrambleBoard(200);
+        scrambleBoard(10);
     }
 
     private void init() {
@@ -55,6 +56,20 @@ public class GameActivity extends AppCompatActivity {
         for (int[] row : sudoku) {
             Arrays.fill(row, -1);
         }
+
+        btSubmitSolution.setOnClickListener(v -> {
+            syncSudokuFromTiles();
+            if (checkBoard()) {
+                tvMessage.setText("You solved correctly!");
+            } else {
+                tvMessage.setText("The board contains errors.");
+            }
+        });
+
+        btExit.setOnClickListener(v -> {
+            Intent intent = new Intent(GameActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void buildBoard() {
@@ -235,5 +250,67 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         return out;
+    }
+
+    private void syncSudokuFromTiles() {
+        for (int r = 0; r < SIDE; r++) {
+            for (int c = 0; c < SIDE; c++) {
+                int flatIndex = r * SIDE + c;
+                sudoku[r][c] = tiles.get(flatIndex).getValue();
+            }
+        }
+    }
+
+    private boolean checkBoard() {
+        // checking lines
+        for (int i = 0; i < 9; ++i){
+            for (int j = 0; j < 9; ++j) {
+                int repetations = 0;
+                for(int m = 0; m < 9; ++m) {
+                    if (sudoku[i][m] == j) {
+                        repetations++;
+                    }
+                }
+                if (repetations > 1) {
+                    return false;
+                }
+            }
+        }
+
+        // checking rows
+        for (int i = 0; i < 9; ++i){
+            for (int j = 0; j < 9; ++j) {
+                int repetations = 0;
+                for(int m = 0; m < 9; ++m) {
+                    if (sudoku[m][i] == j) {
+                        repetations++;
+                    }
+                }
+                if (repetations > 1) {
+                    return false;
+                }
+            }
+        }
+
+        // checking squares
+        for (int boxRow = 0; boxRow < 3; ++boxRow) {
+            for (int boxCol = 0; boxCol < 3; ++boxCol) {
+                for (int digit = 0; digit < 9; ++digit) {
+                    int repetitions = 0;
+                    for (int r = boxRow * 3; r < boxRow * 3 + 3; ++r) {
+                        for (int c = boxCol * 3; c < boxCol * 3 + 3; ++c) {
+                            if (sudoku[r][c] == digit) {
+                                repetitions++;
+                            }
+                        }
+                    }
+                    if (repetitions > 1) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 }
