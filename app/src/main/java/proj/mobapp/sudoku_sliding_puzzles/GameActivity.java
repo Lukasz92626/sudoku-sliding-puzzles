@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Random;
 import java.util.Arrays;
@@ -23,6 +25,13 @@ public class GameActivity extends AppCompatActivity {
 
     int[][] sudoku = new int[9][9];
 
+    private static final int SIDE = 9;
+
+    RecyclerView recyclerView;
+    PuzzleAdapter puzzleAdapter;
+    List<PuzzleTile> tiles = new ArrayList<>();
+    int blankIndex;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +41,8 @@ public class GameActivity extends AppCompatActivity {
         init();
 
         generateSudoku();
+        buildBoard();
+        scrambleBoard(200);
     }
 
     private void init() {
@@ -39,10 +50,92 @@ public class GameActivity extends AppCompatActivity {
         tvMessage = findViewById(R.id.tvMessage);
         btExit = findViewById(R.id.btExit);
         btRules = findViewById(R.id.btRules);
+        recyclerView = findViewById(R.id.recyclerView);
 
         for (int[] row : sudoku) {
             Arrays.fill(row, -1);
         }
+    }
+
+    private void buildBoard() {
+        tiles.clear();
+        blankIndex = -1;
+
+        List<Integer> zeroPositions = new ArrayList<>();
+        for (int r = 0; r < SIDE; r++) {
+            for (int c = 0; c < SIDE; c++) {
+                int value = sudoku[r][c];
+                tiles.add(new PuzzleTile(value, false));
+                if (value == 0) {
+                    zeroPositions.add(r * SIDE + c);
+                }
+            }
+        }
+
+        // Pick one of the zero-cells at random to be the blank slot.
+        Random rand = new Random();
+        blankIndex = zeroPositions.get(rand.nextInt(zeroPositions.size()));
+        tiles.get(blankIndex).setBlank(true);
+
+        recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
+        puzzleAdapter = new PuzzleAdapter(tiles, this::onTileClicked);
+        recyclerView.setAdapter(puzzleAdapter);
+    }
+
+    private void onTileClicked(int position) {
+        if (isAdjacent(position, blankIndex)) {
+            swapTiles(position, blankIndex);
+            blankIndex = position;
+        }
+    }
+
+    private boolean isAdjacent(int a, int b) {
+        int rowA = a / SIDE, colA = a % SIDE;
+        int rowB = b / SIDE, colB = b % SIDE;
+        int rowDiff = Math.abs(rowA - rowB);
+        int colDiff = Math.abs(colA - colB);
+        return (rowDiff + colDiff) == 1; // exactly one step up/down/left/right
+    }
+
+    private void swapTiles(int posA, int posB) {
+        PuzzleTile tileA = tiles.get(posA);
+        PuzzleTile tileB = tiles.get(posB);
+        tiles.set(posA, tileB);
+        tiles.set(posB, tileA);
+        puzzleAdapter.notifyItemChanged(posA);
+        puzzleAdapter.notifyItemChanged(posB);
+    }
+
+    private void scrambleBoard(int moves) {
+        Random rand = new Random();
+        int currentBlank = blankIndex;
+
+        for (int i = 0; i < moves; i++) {
+            List<Integer> neighbors = getNeighborIndices(currentBlank);
+            int swapWith = neighbors.get(rand.nextInt(neighbors.size()));
+
+            PuzzleTile tileA = tiles.get(swapWith);
+            PuzzleTile tileB = tiles.get(currentBlank);
+            tiles.set(currentBlank, tileA);
+            tiles.set(swapWith, tileB);
+
+            currentBlank = swapWith;
+        }
+
+        blankIndex = currentBlank;
+        puzzleAdapter.notifyDataSetChanged();
+    }
+
+    private List<Integer> getNeighborIndices(int pos) {
+        List<Integer> result = new ArrayList<>();
+        int row = pos / SIDE, col = pos % SIDE;
+
+        if (row > 0) result.add(pos - SIDE);        // up
+        if (row < SIDE - 1) result.add(pos + SIDE);  // down
+        if (col > 0) result.add(pos - 1);            // left
+        if (col < SIDE - 1) result.add(pos + 1);     // right
+
+        return result;
     }
 
     private void generateSudoku() {
