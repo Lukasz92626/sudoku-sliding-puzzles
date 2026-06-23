@@ -11,6 +11,9 @@ import android.widget.TextView;
 
 import android.util.Log;
 
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -94,6 +97,7 @@ public class GameActivity extends AppCompatActivity {
         if (recyclerView != null && puzzleAdapter != null) {
             recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
             puzzleAdapter.notifyDataSetChanged();
+            makeRecyclerSquare();
         }
     }
 
@@ -120,6 +124,8 @@ public class GameActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
         puzzleAdapter = new PuzzleAdapter(tiles, this::onTileClicked);
         recyclerView.setAdapter(puzzleAdapter);
+
+        makeRecyclerSquare();
     }
 
     private void onTileClicked(int position) {
@@ -349,5 +355,19 @@ public class GameActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("stats", MODE_PRIVATE);
         int losses = prefs.getInt("losses", 0);
         prefs.edit().putInt("losses", losses + 1).apply();
+    }
+
+    private void makeRecyclerSquare() {
+        final View parent = (View) recyclerView.getParent();
+        parent.post(() -> {
+            int availableWidth = parent.getWidth();
+            int availableHeight = parent.getHeight();
+            int size = Math.min(availableWidth, availableHeight);
+
+            ViewGroup.LayoutParams params = recyclerView.getLayoutParams();
+            params.width = size;
+            params.height = size;
+            recyclerView.setLayoutParams(params);
+        });
     }
 }
