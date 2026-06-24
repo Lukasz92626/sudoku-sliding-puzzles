@@ -19,6 +19,11 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +35,7 @@ import java.util.List;
 import java.util.Collections;
 import java.util.ArrayList;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements SensorEventListener {
     TextView tvMessage;
     Button btSubmitSolution, btExit, btRules;
 
@@ -42,6 +47,13 @@ public class GameActivity extends AppCompatActivity {
     PuzzleAdapter puzzleAdapter;
     List<PuzzleTile> tiles = new ArrayList<>();
     int blankIndex;
+
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+
+    private static final float TILT_THRESHOLD = 3.5f;
+    private static final float TILT_RESET_THRESHOLD = 1.5f;  // próg "telefon wrócił do płaskiego"
+    private boolean tiltConsumed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +75,62 @@ public class GameActivity extends AppCompatActivity {
         generateSudoku();
         buildBoard();
         scrambleBoard(10);
+
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
+
+        float x = event.values[0];
+        float y = event.values[1];
+
+        // Jeśli telefon wrócił do pozycji neutralnej, odblokuj możliwość następnego ruchu
+        if (Math.abs(x) < TILT_RESET_THRESHOLD && Math.abs(y) < TILT_RESET_THRESHOLD) {
+            tiltConsumed = false;
+            return;
+        }
+
+        // Ruch już wykonano więc czekamy na wypłaszczenie
+        if (tiltConsumed) return;
+
+        if (Math.abs(x) < TILT_THRESHOLD && Math.abs(y) < TILT_THRESHOLD) return;
+
+        if (Math.abs(x) > Math.abs(y)) {
+            if (x > TILT_THRESHOLD) {
+                moveFromDirection(Direction.RIGHT_TO_BLANK);
+            } else if (x < -TILT_THRESHOLD) {
+                moveFromDirection(Direction.LEFT_TO_BLANK);
+            }
+        } else {
+            if (y > TILT_THRESHOLD) {
+                moveFromDirection(Direction.TOP_TO_BLANK);
+            } else if (y < -TILT_THRESHOLD) {
+                moveFromDirection(Direction.BOTTOM_TO_BLANK);
+            }
+        }
+
+        tiltConsumed = true;  // blokuj kolejne ruchy aż telefon wróci do płaskiego
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
     private void init() {
@@ -424,5 +492,35 @@ public class GameActivity extends AppCompatActivity {
             params.height = size;
             recyclerView.setLayoutParams(params);
         });
+    }
+
+    private enum Direction {
+        LEFT_TO_BLANK, RIGHT_TO_BLANK, TOP_TO_BLANK, BOTTOM_TO_BLANK
+    }
+
+    private void moveFromDirection(Direction direction) {
+        int row = blankIndex / SIDE;
+        int col = blankIndex % SIDE;
+        int sourcePos = -1;
+
+        switch (direction) {
+            case LEFT_TO_BLANK:
+                if (col > 0) sourcePos = blankIndex - 1;
+                break;
+            case RIGHT_TO_BLANK:
+                if (col < SIDE - 1) sourcePos = blankIndex + 1;
+                break;
+            case TOP_TO_BLANK:
+                if (row > 0) sourcePos = blankIndex - SIDE;
+                break;
+            case BOTTOM_TO_BLANK:
+                if (row < SIDE - 1) sourcePos = blankIndex + SIDE;
+                break;
+        }
+
+        if (sourcePos != -1) {
+            swapTiles(sourcePos, blankIndex);
+            blankIndex = sourcePos;
+        }
     }
 }
