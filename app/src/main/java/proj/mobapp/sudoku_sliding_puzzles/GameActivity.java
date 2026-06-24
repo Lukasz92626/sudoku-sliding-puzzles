@@ -49,6 +49,10 @@ public class GameActivity extends AppCompatActivity {
             setContentView(R.layout.activity_game_landscape);
         }
 
+        for (int[] row : sudoku) {
+            Arrays.fill(row, -1);
+        }
+
         init();
 
         generateSudoku();
@@ -62,10 +66,6 @@ public class GameActivity extends AppCompatActivity {
         btExit = findViewById(R.id.btExit);
         btRules = findViewById(R.id.btRules);
         recyclerView = findViewById(R.id.recyclerView);
-
-        for (int[] row : sudoku) {
-            Arrays.fill(row, -1);
-        }
 
         btSubmitSolution.setOnClickListener(v -> {
             syncSudokuFromTiles();
@@ -94,11 +94,19 @@ public class GameActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (recyclerView != null && puzzleAdapter != null) {
-            recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
-            puzzleAdapter.notifyDataSetChanged();
-            makeRecyclerSquare();
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            setContentView(R.layout.activity_game_portrait);
+        } else {
+            setContentView(R.layout.activity_game_landscape);
         }
+
+        init();
+
+        recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
+        puzzleAdapter = new PuzzleAdapter(tiles, this::onTileClicked);
+        recyclerView.setAdapter(puzzleAdapter);
+
+        makeRecyclerSquare();
     }
 
     private void buildBoard() {

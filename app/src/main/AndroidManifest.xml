@@ -23,6 +23,7 @@
 
         <activity
             android:name=".GameActivity"
+            android:configChanges="orientation|screenSize|screenLayout|uiMode"
             android:exported="false" />
 
         <activity
