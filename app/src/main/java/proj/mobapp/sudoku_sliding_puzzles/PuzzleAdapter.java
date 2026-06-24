@@ -50,6 +50,8 @@ public class PuzzleAdapter extends RecyclerView.Adapter<PuzzleAdapter.TileViewHo
                 listener.onTileClick(adapterPos);
             }
         });
+
+        holder.itemView.setStateListAnimator(null);
     }
 
     @Override

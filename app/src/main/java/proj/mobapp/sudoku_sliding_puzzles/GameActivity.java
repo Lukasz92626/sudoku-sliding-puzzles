@@ -14,6 +14,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.animation.ObjectAnimator;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -105,6 +110,7 @@ public class GameActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
         puzzleAdapter = new PuzzleAdapter(tiles, this::onTileClicked);
         recyclerView.setAdapter(puzzleAdapter);
+        recyclerView.setItemAnimator(null);
 
         makeRecyclerSquare();
     }
@@ -132,6 +138,7 @@ public class GameActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, SIDE));
         puzzleAdapter = new PuzzleAdapter(tiles, this::onTileClicked);
         recyclerView.setAdapter(puzzleAdapter);
+        recyclerView.setItemAnimator(null);
 
         makeRecyclerSquare();
     }
@@ -152,6 +159,46 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void swapTiles(int posA, int posB) {
+        RecyclerView.ViewHolder vhA = recyclerView.findViewHolderForAdapterPosition(posA);
+        RecyclerView.ViewHolder vhB = recyclerView.findViewHolderForAdapterPosition(posB);
+
+        if (vhA == null || vhB == null) {
+            performSwap(posA, posB);
+            return;
+        }
+
+        View viewA = vhA.itemView;
+        View viewB = vhB.itemView;
+
+        float dx = viewB.getX() - viewA.getX();
+        float dy = viewB.getY() - viewA.getY();
+
+        ObjectAnimator animAX = ObjectAnimator.ofFloat(viewA, View.TRANSLATION_X, 0f, dx);
+        ObjectAnimator animAY = ObjectAnimator.ofFloat(viewA, View.TRANSLATION_Y, 0f, dy);
+
+        ObjectAnimator animBX = ObjectAnimator.ofFloat(viewB, View.TRANSLATION_X, 0f, -dx);
+        ObjectAnimator animBY = ObjectAnimator.ofFloat(viewB, View.TRANSLATION_Y, 0f, -dy);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(animAX, animAY, animBX, animBY);
+        set.setDuration(150);
+
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                viewA.setTranslationX(0f);
+                viewA.setTranslationY(0f);
+                viewB.setTranslationX(0f);
+                viewB.setTranslationY(0f);
+
+                performSwap(posA, posB);
+            }
+        });
+
+        set.start();
+    }
+
+    private void performSwap(int posA, int posB) {
         PuzzleTile tileA = tiles.get(posA);
         PuzzleTile tileB = tiles.get(posB);
         tiles.set(posA, tileB);
