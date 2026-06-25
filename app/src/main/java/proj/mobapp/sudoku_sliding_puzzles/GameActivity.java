@@ -43,6 +43,11 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     private static final int SIDE = 9;
 
+    private int level = 1;
+    private int squareSize = 3;
+    private int squareRow0 = 0;
+    private int squareCol0 = 0;
+
     RecyclerView recyclerView;
     PuzzleAdapter puzzleAdapter;
     List<PuzzleTile> tiles = new ArrayList<>();
@@ -70,11 +75,14 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             Arrays.fill(row, -1);
         }
 
+        level = getIntent().getIntExtra("level", 1);
+        squareSize = Math.max(3, Math.min(SIDE, level + 2));
+
         init();
 
         generateSudoku();
         buildBoard();
-        scrambleBoard(10);
+        //scrambleBoard(10);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -160,7 +168,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
     }
 
     @Override
@@ -184,22 +191,39 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void buildBoard() {
+        Random rand = new Random();
+        int maxOffset = SIDE - squareSize;
+        List<Integer> zeroPositions = new ArrayList<>();
+
+        do {
+            squareRow0 = (maxOffset > 0) ? rand.nextInt(maxOffset + 1) : 0;
+            squareCol0 = (maxOffset > 0) ? rand.nextInt(maxOffset + 1) : 0;
+
+            zeroPositions.clear();
+            for (int r = squareRow0; r < squareRow0 + squareSize; r++) {
+                for (int c = squareCol0; c < squareCol0 + squareSize; c++) {
+                    if (sudoku[r][c] == 0) {
+                        zeroPositions.add(r * SIDE + c);
+                    }
+                }
+            }
+        } while (zeroPositions.isEmpty());
+
         tiles.clear();
         blankIndex = -1;
 
-        List<Integer> zeroPositions = new ArrayList<>();
         for (int r = 0; r < SIDE; r++) {
             for (int c = 0; c < SIDE; c++) {
                 int value = sudoku[r][c];
-                tiles.add(new PuzzleTile(value, false));
-                if (value == 0) {
-                    zeroPositions.add(r * SIDE + c);
-                }
+                PuzzleTile tile = new PuzzleTile(value, false);
+
+                boolean inSquare = isInsideSquare(r, c);
+                tile.setLocked(!inSquare);
+
+                tiles.add(tile);
             }
         }
 
-        // Pick one of the zero-cells at random to be the blank slot.
-        Random rand = new Random();
         blankIndex = zeroPositions.get(rand.nextInt(zeroPositions.size()));
         tiles.get(blankIndex).setBlank(true);
 
@@ -211,7 +235,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         makeRecyclerSquare();
     }
 
+    private boolean isInsideSquare(int row, int col) {
+        return row >= squareRow0 && row < squareRow0 + squareSize
+                && col >= squareCol0 && col < squareCol0 + squareSize;
+    }
+
+    private boolean isInsideSquare(int pos) {
+        return isInsideSquare(pos / SIDE, pos % SIDE);
+    }
+
     private void onTileClicked(int position) {
+        if (!isInsideSquare(position)) return;
         if (isAdjacent(position, blankIndex)) {
             swapTiles(position, blankIndex);
             blankIndex = position;
@@ -262,7 +296,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 performSwap(posA, posB);
             }
         });
-
         set.start();
     }
 
@@ -299,12 +332,18 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         List<Integer> result = new ArrayList<>();
         int row = pos / SIDE, col = pos % SIDE;
 
-        if (row > 0) result.add(pos - SIDE);        // up
-        if (row < SIDE - 1) result.add(pos + SIDE);  // down
-        if (col > 0) result.add(pos - 1);            // left
-        if (col < SIDE - 1) result.add(pos + 1);     // right
+        if (row > 0) addIfInsideSquare(result, pos - SIDE);        // up
+        if (row < SIDE - 1) addIfInsideSquare(result, pos + SIDE);  // down
+        if (col > 0) addIfInsideSquare(result, pos - 1);            // left
+        if (col < SIDE - 1) addIfInsideSquare(result, pos + 1);     // right
 
         return result;
+    }
+
+    private void addIfInsideSquare(List<Integer> list, int pos) {
+        if (isInsideSquare(pos)) {
+            list.add(pos);
+        }
     }
 
     private void generateSudoku() {
@@ -410,7 +449,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         for (int r = 0; r < SIDE; r++) {
             for (int c = 0; c < SIDE; c++) {
                 int flatIndex = r * SIDE + c;
-                sudoku[r][c] = tiles.get(flatIndex).getValue();
+                PuzzleTile tile = tiles.get(flatIndex);
+                sudoku[r][c] = tile.isBlank() ? 0 : tile.getValue();
             }
         }
     }
@@ -425,7 +465,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                         repetations++;
                     }
                 }
-                if (repetations > 1) {
+                if (repetations != 1) {
                     return false;
                 }
             }
@@ -440,7 +480,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                         repetations++;
                     }
                 }
-                if (repetations > 1) {
+                if (repetations != 1) {
                     return false;
                 }
             }
@@ -458,7 +498,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                             }
                         }
                     }
-                    if (repetitions > 1) {
+                    if (repetitions != 1) {
                         return false;
                     }
                 }

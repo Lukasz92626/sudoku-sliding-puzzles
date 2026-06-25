@@ -33,7 +33,20 @@ public class LevelChoiceActivity extends AppCompatActivity {
         tvSuccessFail = findViewById(R.id.tvSuccessFail);
 
         btStart.setOnClickListener(v -> {
+            String input = etLevelChoice.getText().toString().trim();
+            int level;
+            try {
+                level = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                return;
+            }
+
+            if (level < 1 || level > 7) {
+                return;
+            }
+
             Intent intent = new Intent(LevelChoiceActivity.this, GameActivity.class);
+            intent.putExtra("level", level);
             startActivity(intent);
         });
     }

@@ -1,5 +1,6 @@
 package proj.mobapp.sudoku_sliding_puzzles;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,12 +45,32 @@ public class PuzzleAdapter extends RecyclerView.Adapter<PuzzleAdapter.TileViewHo
             holder.tileNumber.setAlpha(1f);
         }
 
-        holder.itemView.setOnClickListener(v -> {
-            int adapterPos = holder.getAdapterPosition();
-            if (listener != null && adapterPos != RecyclerView.NO_POSITION) {
-                listener.onTileClick(adapterPos);
+        if (tile.isLocked()) {
+            android.graphics.drawable.Drawable bg = holder.tileNumber.getBackground();
+            if (bg != null) {
+                bg = bg.mutate();
+                bg.setTint(Color.parseColor("#B0B0B0"));
+                holder.tileNumber.setBackground(bg);
+            } else {
+                holder.tileNumber.setBackgroundColor(Color.parseColor("#B0B0B0"));
             }
-        });
+            holder.itemView.setOnClickListener(null);
+            holder.itemView.setClickable(false);
+        } else {
+            android.graphics.drawable.Drawable bg = holder.tileNumber.getBackground();
+            if (bg != null) {
+                bg = bg.mutate();
+                bg.setTintList(null);
+                holder.tileNumber.setBackground(bg);
+            }
+            holder.itemView.setClickable(true);
+            holder.itemView.setOnClickListener(v -> {
+                int adapterPos = holder.getAdapterPosition();
+                if (listener != null && adapterPos != RecyclerView.NO_POSITION) {
+                    listener.onTileClick(adapterPos);
+                }
+            });
+        }
 
         holder.itemView.setStateListAnimator(null);
     }
