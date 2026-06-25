@@ -12,7 +12,9 @@ import android.widget.TextView;
 import android.util.Log;
 
 import android.view.View;
+import android.view.Surface;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import android.animation.ObjectAnimator;
 import android.animation.Animator;
@@ -106,8 +108,33 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
 
-        float x = event.values[0];
-        float y = event.values[1];
+        float rawX = event.values[0];
+        float rawY = event.values[1];
+
+        // Przemapuj osie akcelerometru względem aktualnej rotacji ekranu,
+        // żeby przechylenie zawsze odpowiadało kierunkowi na planszy.
+        int rotation = ((WindowManager) getSystemService(WINDOW_SERVICE))
+                .getDefaultDisplay().getRotation();
+
+        float x, y;
+        switch (rotation) {
+            case Surface.ROTATION_90:   // landscape: telefon obrócony w lewo
+                x = -rawY;
+                y = rawX;
+                break;
+            case Surface.ROTATION_270:  // landscape: telefon obrócony w prawo
+                x = rawY;
+                y = -rawX;
+                break;
+            case Surface.ROTATION_180:  // portrait do góry nogami
+                x = -rawX;
+                y = -rawY;
+                break;
+            default:                    // ROTATION_0 — zwykły portrait
+                x = rawX;
+                y = rawY;
+                break;
+        }
 
         // Jeśli telefon wrócił do pozycji neutralnej, odblokuj możliwość następnego ruchu
         if (Math.abs(x) < TILT_RESET_THRESHOLD && Math.abs(y) < TILT_RESET_THRESHOLD) {
@@ -134,7 +161,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        tiltConsumed = true;  // blokuj kolejne ruchy aż telefon wróci do płaskiego
+        tiltConsumed = true;
     }
 
     @Override
@@ -558,7 +585,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
                 break;
         }
 
-        if (sourcePos != -1) {
+        if (sourcePos != -1 && isInsideSquare(sourcePos) && !tiles.get(sourcePos).isLocked()) {
             swapTiles(sourcePos, blankIndex);
             blankIndex = sourcePos;
         }
