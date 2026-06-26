@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Sudoku sliding puzzles</string>
+    <string name="author">Author: Łukasz Lipski</string>
+    <string name="exit">Exit</string>
+    <string name="start">Start</string>
+    <string name="play">Play</string>
+    <string name="select">Select a level from 1-7</string>
+    <string name="back_to_menu">Back to menu</string>
+    <string name="submit_solution">Submit solution</string>
+    <string name="sensor_disable">Disable sensor control</string>
+    <string name="sensor_enable">Enable sensor control</string>
 </resources>

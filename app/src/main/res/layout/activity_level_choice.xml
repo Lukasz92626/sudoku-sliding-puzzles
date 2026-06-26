@@ -9,10 +9,10 @@
     android:paddingStart="32dp"
     android:paddingEnd="32dp">
 
-    <TextView android:id="@+id/tvWelcome"
+    <TextView android:id="@+id/tvSelect"
         android:layout_width="350dp"
         android:layout_height="50dp"
-        android:text="Select a level from 1-7"
+        android:text="@string/select"
         android:textSize="20sp"
         android:textStyle="bold"
         />
@@ -29,7 +29,7 @@
     <Button android:id="@+id/btStart"
         android:layout_width="350dp"
         android:layout_height="60dp"
-        android:text="Start"
+        android:text="@string/start"
         android:layout_marginTop="15dp"
         style="@style/SudokuslidingpuzzlesButton"
         />
@@ -45,7 +45,7 @@
     <Button android:id="@+id/btBackToMenu"
         android:layout_width="350dp"
         android:layout_height="60dp"
-        android:text="Back to menu"
+        android:text="@string/back_to_menu"
         android:layout_marginTop="15dp"
         style="@style/SudokuslidingpuzzlesButton"
         />

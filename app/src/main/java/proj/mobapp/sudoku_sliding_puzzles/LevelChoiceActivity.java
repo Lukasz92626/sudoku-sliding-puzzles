@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LevelChoiceActivity extends AppCompatActivity {
-    TextView tvWelcome, tvSuccessFail;
+    TextView tvSelect, tvSuccessFail;
     EditText etLevelChoice;
     Button btStart, btBackToMenu;
 
@@ -26,7 +26,7 @@ public class LevelChoiceActivity extends AppCompatActivity {
     }
 
     private void init() {
-        tvWelcome = findViewById(R.id.tvWelcome);
+        tvSelect = findViewById(R.id.tvSelect);
         etLevelChoice = findViewById(R.id.etLevelChoice);
         btStart = findViewById(R.id.btStart);
         tvSuccessFail = findViewById(R.id.tvSuccessFail);
@@ -56,6 +56,7 @@ public class LevelChoiceActivity extends AppCompatActivity {
         });
     }
 
+    // Displays wins and losses
     private void displayStats() {
         SharedPreferences prefs = getSharedPreferences("stats", MODE_PRIVATE);
         int wins = prefs.getInt("wins", 0);

@@ -114,8 +114,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         float rawX = event.values[0];
         float rawY = event.values[1];
 
-        // Przemapuj osie akcelerometru względem aktualnej rotacji ekranu,
-        // żeby przechylenie zawsze odpowiadało kierunkowi na planszy.
         int rotation = ((WindowManager) getSystemService(WINDOW_SERVICE))
                 .getDefaultDisplay().getRotation();
 
@@ -228,6 +226,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    // Places tiles on the board, picking a random sub-square and blank position.
     private void buildBoard() {
         Random rand = new Random();
         int maxOffset = SIDE - squareSize;
@@ -273,15 +272,18 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         makeRecyclerSquare();
     }
 
+    // Returns true if the given row/col falls within the active puzzle sub-square.
     private boolean isInsideSquare(int row, int col) {
         return row >= squareRow0 && row < squareRow0 + squareSize
                 && col >= squareCol0 && col < squareCol0 + squareSize;
     }
 
+    // Returns true if the flat tile index falls within the active puzzle sub-square.
     private boolean isInsideSquare(int pos) {
         return isInsideSquare(pos / SIDE, pos % SIDE);
     }
 
+    // Swaps the clicked tile with the blank if they are adjacent and controls are unlocked.
     private void onTileClicked(int position) {
         if (controlsLocked) return;
         if (!isInsideSquare(position)) return;
@@ -291,6 +293,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    // Returns true if two flat tile indices are exactly one step apart horizontally or vertically.
     private boolean isAdjacent(int a, int b) {
         int rowA = a / SIDE, colA = a % SIDE;
         int rowB = b / SIDE, colB = b % SIDE;
@@ -299,6 +302,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         return (rowDiff + colDiff) == 1; // exactly one step up/down/left/right
     }
 
+    // Animates two tiles sliding into each other's positions, then commits the swap.
     private void swapTiles(int posA, int posB) {
         RecyclerView.ViewHolder vhA = recyclerView.findViewHolderForAdapterPosition(posA);
         RecyclerView.ViewHolder vhB = recyclerView.findViewHolderForAdapterPosition(posB);
@@ -338,6 +342,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         set.start();
     }
 
+    // Swaps two tiles in the data list and notifies the adapter.
     private void performSwap(int posA, int posB) {
         PuzzleTile tileA = tiles.get(posA);
         PuzzleTile tileB = tiles.get(posB);
@@ -347,6 +352,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         puzzleAdapter.notifyItemChanged(posB);
     }
 
+    // Randomly shuffles tiles within the puzzle square by making a series of valid moves.
     private void scrambleBoard(int moves) {
         Random rand = new Random();
         int currentBlank = blankIndex;
@@ -367,6 +373,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         puzzleAdapter.notifyDataSetChanged();
     }
 
+    // Returns the indices of square-adjacent neighbors for a given flat tile position.
     private List<Integer> getNeighborIndices(int pos) {
         List<Integer> result = new ArrayList<>();
         int row = pos / SIDE, col = pos % SIDE;
@@ -379,12 +386,14 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         return result;
     }
 
+    // Adds a position to the list only if it lies within the active puzzle sub-square.
     private void addIfInsideSquare(List<Integer> list, int pos) {
         if (isInsideSquare(pos)) {
             list.add(pos);
         }
     }
 
+    // Generates a valid, randomized 9×9 sudoku grid using band shuffling.
     private void generateSudoku() {
         int base = 3;
         int side = base * base;
@@ -484,6 +493,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         return out;
     }
 
+    // Copies current tile values back into the sudoku array for validation.
     private void syncSudokuFromTiles() {
         for (int r = 0; r < SIDE; r++) {
             for (int c = 0; c < SIDE; c++) {
@@ -494,6 +504,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    // Validates that every row, column, and 3×3 box contains each digit exactly once.
     private boolean checkBoard() {
         // checking lines
         for (int i = 0; i < 9; ++i){
@@ -547,18 +558,21 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         return true;
     }
 
+    // Increments the win counter
     private void saveWin() {
         SharedPreferences prefs = getSharedPreferences("stats", MODE_PRIVATE);
         int wins = prefs.getInt("wins", 0);
         prefs.edit().putInt("wins", wins + 1).apply();
     }
 
+    // Increments the loss counter
     private void saveLoss() {
         SharedPreferences prefs = getSharedPreferences("stats", MODE_PRIVATE);
         int losses = prefs.getInt("losses", 0);
         prefs.edit().putInt("losses", losses + 1).apply();
     }
 
+    // Constrains the RecyclerView to a square sized to the smaller screen dimension.
     private void makeRecyclerSquare() {
         final View parent = (View) recyclerView.getParent();
         parent.post(() -> {
@@ -577,6 +591,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         LEFT_TO_BLANK, RIGHT_TO_BLANK, TOP_TO_BLANK, BOTTOM_TO_BLANK
     }
 
+    // Moves the tile adjacent to the blank in the given direction, if valid.
     private void moveFromDirection(Direction direction) {
         int row = blankIndex / SIDE;
         int col = blankIndex % SIDE;
