@@ -7,6 +7,11 @@
     <string name="select">Select a level from 1-7</string>
     <string name="back_to_menu">Back to menu</string>
     <string name="submit_solution">Submit solution</string>
+
     <string name="sensor_disable">Disable sensor control</string>
     <string name="sensor_enable">Enable sensor control</string>
+
+    <string name="board_correctly">You solved correctly!</string>
+    <string name="board_errors">The board contains errors.</string>
+
 </resources>

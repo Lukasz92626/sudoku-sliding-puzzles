@@ -6,10 +6,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-
-import android.util.Log;
 
 import android.view.View;
 import android.view.Surface;
@@ -34,35 +31,36 @@ import java.util.Random;
 import java.util.Arrays;
 
 import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
     TextView tvMessage;
     Button btSubmitSolution, btExit, btSensor;
 
-    int[][] sudoku = new int[9][9];
-
-    private static final int SIDE = 9;
-
-    private int level = 1;
-    private int squareSize = 3;
-    private int squareRow0 = 0;
-    private int squareCol0 = 0;
-
     RecyclerView recyclerView;
     PuzzleAdapter puzzleAdapter;
-    List<PuzzleTile> tiles = new ArrayList<>();
-    int blankIndex;
 
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
+    private int[][] sudoku = new int[9][9]; // sudoku grid
+    private final SudokuGenerator sudokuGenerator = new SudokuGenerator(); // Generates randomized valid sudoku
 
-    private static final float TILT_THRESHOLD = 3.5f;
-    private static final float TILT_RESET_THRESHOLD = 1.5f;  // próg "telefon wrócił do płaskiego"
-    private boolean tiltConsumed = false;
+    private static final int SIDE = 9; // Board dimension
 
-    private boolean controlsLocked = false;
+    private int level = 1; // Selected difficulty level
+    private int squareSize = 3; // Size of the active square
+    private int squareRow0 = 0; // Top-left row of the active square
+    private int squareCol0 = 0; // Top-left column of the active square
+
+    private List<PuzzleTile> tiles = new ArrayList<>(); // Flat list of all board tiles
+    private int blankIndex; // Index of the current blank tile
+
+    private SensorManager sensorManager; // Provides access to device sensors
+    private Sensor accelerometer; // Accelerometer used for tilt controls
+
+    private static final float TILT_THRESHOLD = 3.5f; // Minimum tilt required to trigger a move
+    private static final float TILT_RESET_THRESHOLD = 1.5f;  // Tilt level below which the device is considered neutral
+    private boolean tiltConsumed = false; // Prevents multiple moves from a single tilt gesture
+
+    private boolean sensorLocked = false; // True when accelerometer control is disabled
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +82,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         init();
 
-        generateSudoku();
+        sudoku = sudokuGenerator.generateSudoku();
         buildBoard();
         scrambleBoard(10);
 
@@ -108,7 +106,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (controlsLocked) return;
+        if (sensorLocked) return;
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
 
         float rawX = event.values[0];
@@ -204,20 +202,17 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         btSubmitSolution.setOnClickListener(v -> {
             syncSudokuFromTiles();
             if (checkBoard()) {
-                tvMessage.setText("You solved correctly!");
+                tvMessage.setText(R.string.board_correctly);
                 saveWin();
             } else {
-                tvMessage.setText("The board contains errors.");
+                tvMessage.setText(R.string.board_errors);
                 saveLoss();
             }
         });
 
         btSensor.setOnClickListener(v -> {
-            if(controlsLocked)
-                btSensor.setText("Disable sensor control");
-            else
-                btSensor.setText("Enable sensor control");
-            controlsLocked = !controlsLocked;
+            sensorLocked = !sensorLocked;
+            btSensor.setText(sensorLocked ? R.string.sensor_enable : R.string.sensor_disable);
         });
 
         btExit.setOnClickListener(v -> {
@@ -285,7 +280,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     // Swaps the clicked tile with the blank if they are adjacent and controls are unlocked.
     private void onTileClicked(int position) {
-        if (controlsLocked) return;
         if (!isInsideSquare(position)) return;
         if (isAdjacent(position, blankIndex)) {
             swapTiles(position, blankIndex);
@@ -391,106 +385,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         if (isInsideSquare(pos)) {
             list.add(pos);
         }
-    }
-
-    // Generates a valid, randomized 9×9 sudoku grid using band shuffling.
-    private void generateSudoku() {
-        int base = 3;
-        int side = base * base;
-
-        int[][] pattern = new int[side][side];
-        for (int r = 0; r < side; r++) {
-            for (int c = 0; c < side; c++) {
-                pattern[r][c] = (base * (r % base) + r / base + c) % side;
-            }
-        }
-
-        Random rand = new Random();
-
-        // Losowa permutacja cyfr
-        List<Integer> digits = new ArrayList<>();
-        for (int d = 0; d < side; d++) digits.add(d);
-        Collections.shuffle(digits, rand);
-
-        int[][] result = new int[side][side];
-        for (int r = 0; r < side; r++) {
-            for (int c = 0; c < side; c++) {
-                result[r][c] = digits.get(pattern[r][c]);
-            }
-        }
-
-        // Losowa zamiana wierszy w ramach każdego pasa (3 pasy po 3 wiersze)
-        result = shuffleRowsWithinBands(result, base, rand);
-
-        // Losowa zamiana kolumn w ramach każdego pasa
-        result = shuffleColsWithinBands(result, base, rand);
-
-        // Losowa zamiana całych pasów wierszy
-        result = shuffleBands(result, base, rand, true);
-
-        // Losowa zamiana całych pasów kolumn
-        result = shuffleBands(result, base, rand, false);
-
-        sudoku = result;
-
-        for (int i = 0; i < side; i++) {
-            Log.d("Sudoku", "Row " + i + ": " + Arrays.toString(sudoku[i]));
-        }
-    }
-
-    // Randomly reorders rows within each 3-row band.
-    private int[][] shuffleRowsWithinBands(int[][] grid, int base, Random rand) {
-        int side = grid.length;
-        int[][] out = new int[side][side];
-        for (int band = 0; band < base; band++) {
-            List<Integer> rowsInBand = new ArrayList<>();
-            for (int k = 0; k < base; k++) rowsInBand.add(band * base + k);
-            Collections.shuffle(rowsInBand, rand);
-            for (int k = 0; k < base; k++) {
-                out[band * base + k] = grid[rowsInBand.get(k)];
-            }
-        }
-        return out;
-    }
-
-    // Randomly reorders columns within each 3-column band.
-    private int[][] shuffleColsWithinBands(int[][] grid, int base, Random rand) {
-        int side = grid.length;
-        int[][] out = new int[side][side];
-        for (int band = 0; band < base; band++) {
-            List<Integer> colsInBand = new ArrayList<>();
-            for (int k = 0; k < base; k++) colsInBand.add(band * base + k);
-            Collections.shuffle(colsInBand, rand);
-            for (int r = 0; r < side; r++) {
-                for (int k = 0; k < base; k++) {
-                    out[r][band * base + k] = grid[r][colsInBand.get(k)];
-                }
-            }
-        }
-        return out;
-    }
-
-    // Randomly reorders entire row or column bands.
-    private int[][] shuffleBands(int[][] grid, int base, Random rand, boolean rows) {
-        int side = grid.length;
-        int[][] out = new int[side][side];
-        List<Integer> bandOrder = new ArrayList<>();
-        for (int b = 0; b < base; b++) bandOrder.add(b);
-        Collections.shuffle(bandOrder, rand);
-
-        for (int newBand = 0; newBand < base; newBand++) {
-            int oldBand = bandOrder.get(newBand);
-            for (int k = 0; k < base; k++) {
-                if (rows) {
-                    out[newBand * base + k] = grid[oldBand * base + k];
-                } else {
-                    for (int r = 0; r < side; r++) {
-                        out[r][newBand * base + k] = grid[r][oldBand * base + k];
-                    }
-                }
-            }
-        }
-        return out;
     }
 
     // Copies current tile values back into the sudoku array for validation.
