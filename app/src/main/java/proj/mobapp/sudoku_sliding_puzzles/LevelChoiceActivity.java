@@ -11,10 +11,9 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class LevelChoiceActivity extends AppCompatActivity {
-    TextView tvWelcome;
+    TextView tvWelcome, tvSuccessFail;
     EditText etLevelChoice;
-    Button btStart;
-    TextView tvSuccessFail;
+    Button btStart, btBackToMenu;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +30,7 @@ public class LevelChoiceActivity extends AppCompatActivity {
         etLevelChoice = findViewById(R.id.etLevelChoice);
         btStart = findViewById(R.id.btStart);
         tvSuccessFail = findViewById(R.id.tvSuccessFail);
+        btBackToMenu = findViewById(R.id.btBackToMenu);
 
         btStart.setOnClickListener(v -> {
             String input = etLevelChoice.getText().toString().trim();
@@ -47,6 +47,11 @@ public class LevelChoiceActivity extends AppCompatActivity {
 
             Intent intent = new Intent(LevelChoiceActivity.this, GameActivity.class);
             intent.putExtra("level", level);
+            startActivity(intent);
+        });
+
+        btBackToMenu.setOnClickListener(v -> {
+            Intent intent = new Intent(LevelChoiceActivity.this, MainActivity.class);
             startActivity(intent);
         });
     }

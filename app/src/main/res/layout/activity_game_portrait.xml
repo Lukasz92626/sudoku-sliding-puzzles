@@ -38,7 +38,7 @@
         <Button
             android:id="@+id/btSubmitSolution"
             android:layout_width="350dp"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:text="Submit solution"
             style="@style/SudokuslidingpuzzlesButton"/>
 
@@ -50,19 +50,19 @@
             android:padding="8dp"/>
 
         <Button
-            android:id="@+id/btExit"
+            android:id="@+id/btSensor"
             android:layout_width="350dp"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:layout_marginTop="12dp"
-            android:text="Exit"
+            android:text="Disable sensor control"
             style="@style/SudokuslidingpuzzlesButton"/>
 
         <Button
-            android:id="@+id/btRules"
+            android:id="@+id/btExit"
             android:layout_width="350dp"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:layout_marginTop="12dp"
-            android:text="Rules"
+            android:text="Exit"
             style="@style/SudokuslidingpuzzlesButton"/>
 
     </LinearLayout>

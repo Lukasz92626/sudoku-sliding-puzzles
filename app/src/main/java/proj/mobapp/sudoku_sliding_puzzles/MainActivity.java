@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     TextView tvTitle;
-    Button btPlay;
+    Button btPlay, btExit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,10 +23,15 @@ public class MainActivity extends AppCompatActivity {
     public void init(){
         tvTitle = findViewById(R.id.tvTitle);
         btPlay = findViewById(R.id.btPlay);
+        btExit = findViewById(R.id.btExit);
 
         btPlay.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LevelChoiceActivity.class);
             startActivity(intent);
+        });
+
+        btExit.setOnClickListener(v -> {
+            finishAffinity();
         });
     }
 }

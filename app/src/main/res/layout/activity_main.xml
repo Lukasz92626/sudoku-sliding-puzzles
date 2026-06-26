@@ -26,8 +26,16 @@
 
     <Button android:id="@+id/btPlay"
         android:layout_width="350dp"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:text="Play"
+        android:layout_marginTop="15dp"
+        style="@style/SudokuslidingpuzzlesButton"
+        />
+
+    <Button android:id="@+id/btExit"
+        android:layout_width="350dp"
+        android:layout_height="60dp"
+        android:text="Exit"
         android:layout_marginTop="15dp"
         style="@style/SudokuslidingpuzzlesButton"
         />

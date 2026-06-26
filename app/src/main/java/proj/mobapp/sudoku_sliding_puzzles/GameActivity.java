@@ -39,7 +39,7 @@ import java.util.ArrayList;
 
 public class GameActivity extends AppCompatActivity implements SensorEventListener {
     TextView tvMessage;
-    Button btSubmitSolution, btExit, btRules;
+    Button btSubmitSolution, btExit, btSensor;
 
     int[][] sudoku = new int[9][9];
 
@@ -61,6 +61,8 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     private static final float TILT_THRESHOLD = 3.5f;
     private static final float TILT_RESET_THRESHOLD = 1.5f;  // próg "telefon wrócił do płaskiego"
     private boolean tiltConsumed = false;
+
+    private boolean controlsLocked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +86,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
         generateSudoku();
         buildBoard();
-        //scrambleBoard(10);
+        scrambleBoard(10);
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -106,6 +108,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        if (controlsLocked) return;
         if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
 
         float rawX = event.values[0];
@@ -168,30 +171,6 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-    private void init() {
-        btSubmitSolution = findViewById(R.id.btSubmitSolution);
-        tvMessage = findViewById(R.id.tvMessage);
-        btExit = findViewById(R.id.btExit);
-        btRules = findViewById(R.id.btRules);
-        recyclerView = findViewById(R.id.recyclerView);
-
-        btSubmitSolution.setOnClickListener(v -> {
-            syncSudokuFromTiles();
-            if (checkBoard()) {
-                tvMessage.setText("You solved correctly!");
-                saveWin();
-            } else {
-                tvMessage.setText("The board contains errors.");
-                saveLoss();
-            }
-        });
-
-        btExit.setOnClickListener(v -> {
-            Intent intent = new Intent(GameActivity.this, MainActivity.class);
-            startActivity(intent);
-        });
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -215,6 +194,38 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
         recyclerView.setItemAnimator(null);
 
         makeRecyclerSquare();
+    }
+
+    private void init() {
+        btSubmitSolution = findViewById(R.id.btSubmitSolution);
+        tvMessage = findViewById(R.id.tvMessage);
+        btExit = findViewById(R.id.btExit);
+        btSensor = findViewById(R.id.btSensor);
+        recyclerView = findViewById(R.id.recyclerView);
+
+        btSubmitSolution.setOnClickListener(v -> {
+            syncSudokuFromTiles();
+            if (checkBoard()) {
+                tvMessage.setText("You solved correctly!");
+                saveWin();
+            } else {
+                tvMessage.setText("The board contains errors.");
+                saveLoss();
+            }
+        });
+
+        btSensor.setOnClickListener(v -> {
+            if(controlsLocked)
+                btSensor.setText("Disable sensor control");
+            else
+                btSensor.setText("Enable sensor control");
+            controlsLocked = !controlsLocked;
+        });
+
+        btExit.setOnClickListener(v -> {
+            Intent intent = new Intent(GameActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void buildBoard() {
@@ -272,6 +283,7 @@ public class GameActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void onTileClicked(int position) {
+        if (controlsLocked) return;
         if (!isInsideSquare(position)) return;
         if (isAdjacent(position, blankIndex)) {
             swapTiles(position, blankIndex);
