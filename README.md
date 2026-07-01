@@ -1,10 +1,10 @@
 # Sudoku sliding puzzles
 
-[![Java](https://img.shields.io/badge/Java-orange.svg)](https://www.java.com/)
-[![Android](https://img.shields.io/badge/Android-green.svg)](https://developer.android.com/)
-[![Android Studio](https://img.shields.io/badge/Android%20Studio-brightgreen.svg)](https://developer.android.com/studio)
-[![Gradle](https://img.shields.io/badge/Gradle-blue.svg)](https://gradle.org/)
-[![XML](https://img.shields.io/badge/UI-XML-red.svg)](https://developer.android.com/guide/topics/ui/declaring-layout)
+[![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white)](https://www.java.com/)
+[![Android](https://img.shields.io/badge/Android-3DDC84?style=flat&logo=android&logoColor=white)](https://developer.android.com/)
+[![Android Studio](https://img.shields.io/badge/Android_Studio-3DDC84?style=flat&logo=android-studio&logoColor=white)](https://developer.android.com/studio)
+[![Gradle](https://img.shields.io/badge/Gradle-02303A?style=flat&logo=gradle&logoColor=white)](https://gradle.org/)
+[![XML](https://img.shields.io/badge/UI-XML-FF6600?style=flat&logo=xml&logoColor=white)](https://developer.android.com/guide/topics/ui/declaring-layout)
 
 An Android game developed in **Java** using **Android Studio** that combines the mechanics of the classic **15-puzzle** with the rules of **Sudoku**.
 
