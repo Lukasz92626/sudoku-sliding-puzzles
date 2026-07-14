@@ -69,13 +69,33 @@ This project demonstrates the use of several Android components and concepts:
 - Sensors
 - Animations
 
+## Testing
+
+The project includes unit tests for the core Sudoku generation logic, located in `app/src/test`.
+
+`SudokuGeneratorTest` verifies that every board produced by `SudokuGenerator` is a valid Sudoku:
+
+- correct 9×9 board dimensions,
+- each digit 0–8 appears exactly 9 times,
+- every row, column, and 3×3 subgrid contains the digits 0–8 without repetition,
+- the generator produces different boards across repeated calls.
+
+### Running the tests
+
+Run all unit tests from the command line:
+
+```bash
+./gradlew test
+```
+
+Or run `SudokuGeneratorTest` directly from Android Studio via **Run > Run 'SudokuGeneratorTest'**.
 
 
 ## How to Run
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/your-repository.git
+   git clone https://github.com/Lukasz92626/sudoku-sliding-puzzles.git
    ```
 
 2. Open the project in **Android Studio**.
